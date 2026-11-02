@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="AYOUB HACKER — a cinematic fake-hacker prank page. No real access, no data collection." />
+  <title>AYOUB HACKER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* Layout: full-viewport stage with centered cinematic panels */
+    :root {
+      color-scheme: dark;
+      --bg: #020303;
+      --surface: #080b0a;
+      --surface-2: #101413;
+      --fg: #a4aaa7;
+      --muted: #6d7571;
+      --terminal: #087a42;
+      --terminal-dim: #055a30;
+      --warning: #650d16;
+      --warning-bright: #8a1420;
+      --border: #202624;
+      --glow-green: rgba(8, 122, 66, 0.28);
+      --glow-red: rgba(101, 13, 22, 0.45);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.75);
+      --font-display: "Syne", "Arial Narrow", sans-serif;
+      --font-mono: "IBM Plex Mono", "Consolas", monospace;
+      --gutter: max(16px, env(safe-area-inset-left, 0px));
+      --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-mono);
+      overflow: hidden;
+    }
+
+    body {
+      min-height: 100dvh;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(101, 13, 22, 0.18), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(8, 122, 66, 0.08), transparent 50%),
+        linear-gradient(180deg, #050707 0%, var(--bg) 40%, #010202 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.12) 2px,
+          rgba(0, 0, 0, 0.12) 4px
+        );
+      opacity: 0.35;
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 40;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.72) 100%);
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding-block: 20px;
+      padding-left: var(--gutter);
+      padding-right: var(--gutter-r);
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: calc(12px + env(safe-area-inset-top, 0px)) var(--gutter-r) 12px var(--gutter);
+      background: linear-gradient(180deg, rgba(2, 3, 3, 0.92), transparent);
+      pointer-events: none;
+    }
+
+    .brand {
+      font-family: var(--font-display);
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .brand span { color: var(--warning-bright); }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .ghost-btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: rgba(8, 11, 10, 0.85);
+      color: var(--muted);
+      font: 500 0.72rem var(--font-mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.55rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .ghost-btn:hover,
+    .ghost-btn:focus-visible {
+      color: var(--fg);
+      border-color: #2c3531;
+      outline: none;
+    }
+
+    .screen {
+      width: min(100%, 720px);
+      display: none;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .screen.active {
+      display: block;
+      animation: rise-in 700ms ease forwards;
+    }
+
+    @keyframes rise-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Opening */
+    .warning-panel {
+      text-align: center;
+      background:
+        linear-gradient(180deg, rgba(16, 20, 19, 0.9), rgba(8, 11, 10, 0.96));
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      padding: clamp(28px, 6vw, 48px) clamp(20px, 5vw, 40px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .warning-panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 40%, rgba(101, 13, 22, 0.08) 50%, transparent 60%);
+      animation: sweep 4.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes sweep {
+      0%, 100% { transform: translateX(-30%); opacity: 0; }
+      40% { opacity: 1; }
+      70% { transform: translateX(30%); opacity: 0; }
+    }
+
+    .warn-icon {
+      width: 42px;
+      height: 42px;
+      margin: 0 auto 18px;
+      border: 2px solid var(--warning);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--warning-bright);
+      font-weight: 700;
+      font-size: 1.25rem;
+      box-shadow: 0 0 24px var(--glow-red);
+      animation: blink 1.1s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      0%, 55% { opacity: 1; }
+      56%, 100% { opacity: 0.22; }
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .warn-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(1.35rem, 4.8vw, 2.1rem);
+      line-height: 1.15;
+      letter-spacing: 0.04em;
+      color: #c9cecb;
+      margin: 0 0 14px;
+      text-wrap: balance;
+      text-shadow: 0 0 28px var(--glow-red);
+    }
+
+    .glitch {
+      position: relative;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .glitch.glitching::before {
+      color: var(--warning-bright);
+      transform: translate(2px, -1px);
+      opacity: 0.7;
+      clip-path: inset(20% 0 45% 0);
+    }
+
+    .glitch.glitching::after {
+      color: var(--terminal);
+      transform: translate(-2px, 1px);
+      opacity: 0.55;
+      clip-path: inset(55% 0 10% 0);
+    }
+
+    .warn-copy {
+      margin: 0 auto 28px;
+      max-width: 38ch;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.55;
+    }
+
+    .continue-btn {
+      appearance: none;
+      border: 1px solid var(--warning);
+      background: linear-gradient(180deg, #3a0a10, #24060b);
+      color: #d7b0b4;
+      font: 600 0.85rem var(--font-mono);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding: 0.95rem 1.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 0 0 rgba(101, 13, 22, 0);
+      transition: box-shadow 220ms ease, transform 160ms ease, filter 160ms ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .continue-btn:hover,
+    .continue-btn:focus-visible {
+      filter: brightness(1.12);
+      box-shadow: 0 0 28px var(--glow-red);
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    .continue-btn:active { transform: translateY(1px); }
+
+    .disclaimer {
+      margin: 22px 0 0;
+      font-size: 0.68rem;
+      color: #4e5652;
+      letter-spacing: 0.04em;
+    }
+
+    /* Terminal */
+    .terminal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow), 0 0 60px rgba(8, 122, 66, 0.05);
+      overflow: hidden;
+      min-height: min(72dvh, 560px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .term-chrome {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dots { display: flex; gap: 6px; }
+    .dots i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2a3230;
+      display: block;
+    }
+    .dots i:nth-child(1) { background: #4a1a20; }
+    .dots i:nth-child(2) { background: #3a3420; }
+    .dots i:nth-child(3) { background: #1a3a28; }
+
+    .term-title {
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .term-body {
+      position: relative;
+      padding: 16px 16px 8px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(8, 122, 66, 0.035), transparent 30%),
+        var(--surface);
+    }
+
+    .code-rain {
+      position: absolute;
+      inset: 0;
+      padding: 12px 16px;
+      font-size: 0.68rem;
+      line-height: 1.45;
+      color: var(--terminal-dim);
+      opacity: 0.35;
+      white-space: pre-wrap;
+      word-break: break-all;
+      pointer-events: none;
+      mask-image: linear-gradient(180deg, transparent, #000 18%, #000 78%, transparent);
+    }
+
+    .messages {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 10px;
+      min-height: 220px;
+    }
+
+    .msg {
+      color: var(--terminal);
+      text-shadow: 0 0 12px var(--glow-green);
+      font-size: clamp(0.84rem, 2.4vw, 0.95rem);
+      opacity: 0;
+      transform: translateX(-6px);
+    }
+
+    .msg.show {
+      animation: msg-in 420ms ease forwards;
+    }
+
+    .msg.warn-line {
+      color: #9a4a54;
+      text-shadow: 0 0 14px var(--glow-red);
+    }
+
+    @keyframes msg-in {
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 0.55ch;
+      height: 1.05em;
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      background: var(--terminal);
+      box-shadow: 0 0 8px var(--glow-green);
+      animation: caret 1s steps(1) infinite;
+    }
+
+    @keyframes caret {
+      50% { opacity: 0; }
+    }
+
+    .progress-wrap {
+      padding: 14px 16px 18px;
+      border-top: 1px solid var(--border);
+      background: rgba(2, 3, 3, 0.45);
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .progress-meta strong {
+      color: var(--terminal);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bar {
+      height: 6px;
+      border-radius: 999px;
+      background: #0c1210;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #043822, var(--terminal));
+      box-shadow: 0 0 16px var(--glow-green);
+      transition: width 180ms linear;
+    }
+
+    .flash {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 45;
+      background: rgba(101, 13, 22, 0.22);
+      opacity: 0;
+    }
+
+    .flash.on {
+      animation: flash-pulse 280ms ease;
+    }
+
+    @keyframes flash-pulse {
+      0% { opacity: 0; }
+      35% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Reveal */
+    .reveal {
+      text-align: center;
+      width: min(100%, 640px);
+    }
+
+    .hacked {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(2rem, 9vw, 3.6rem);
+      letter-spacing: 0.06em;
+      line-height: 1.05;
+      color: #8f1a28;
+      text-shadow: 0 0 40px var(--glow-red);
+      margin: 0 0 10px;
+      opacity: 0;
+      transform: scale(0.96);
+    }
+
+    .hacked.show {
+      animation: reveal-pop 900ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    .byline {
+      margin: 0 0 28px;
+      font-size: clamp(1.05rem, 3.5vw, 1.4rem);
+      color: #c9cecb;
+      letter-spacing: 0.14em;
+      opacity: 0;
+    }
+
+    .byline.show {
+      animation: rise-in 700ms ease 200ms forwards;
+    }
+
+    .prank {
+      margin: 0 auto 28px;
+      max-width: 28ch;
+      font-size: clamp(0.95rem, 3vw, 1.15rem);
+      line-height: 1.45;
+      color: var(--terminal);
+      text-shadow: 0 0 18px var(--glow-green);
+      opacity: 0;
+    }
+
+    .prank.show {
+      animation: rise-in 800ms ease forwards;
+    }
+
+    @keyframes reveal-pop {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      opacity: 0;
+    }
+
+    .actions.show {
+      animation: rise-in 600ms ease forwards;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      appearance: none;
+      border-radius: 4px;
+      font: 600 0.78rem var(--font-mono);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 0.9rem 1.25rem;
+      cursor: pointer;
+      transition: filter 160ms ease, box-shadow 200ms ease, transform 160ms ease;
+    }
+
+    .primary-btn {
+      border: 1px solid var(--terminal-dim);
+      background: linear-gradient(180deg, #0a2a1a, #061910);
+      color: #8fbf9f;
+    }
+
+    .primary-btn:hover,
+    .primary-btn:focus-visible {
+      filter: brightness(1.12);
+      box-shadow: 0 0 22px var(--glow-green);
+      outline: none;
+    }
+
+    .secondary-btn {
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--muted);
+    }
+
+    .secondary-btn:hover,
+    .secondary-btn:focus-visible {
+      color: var(--fg);
+      outline: none;
+    }
+
+    @media (max-width: 480px) {
+      .terminal { min-height: 68dvh; }
+      .warn-title { letter-spacing: 0.02em; }
+      .continue-btn { width: 100%; }
+      .actions { width: 100%; }
+      .primary-btn, .secondary-btn { flex: 1 1 140px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .screen.active,
+      .msg.show,
+      .hacked.show,
+      .byline.show,
+      .prank.show,
+      .actions.show {
+        opacity: 1;
+        transform: none;
+      }
+      .warn-icon { animation: none; }
+      body::before { opacity: 0.15; }
+    }
+  </style>
+</head>
+<body>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="flash" id="flash" aria-hidden="true"></div>
+
+  <div class="topbar">
+    <div class="brand">AYOUB <span>HACKER</span></div>
+    <div class="top-actions">
+      <button class="ghost-btn" id="mute-btn" type="button" aria-pressed="false">Mute</button>
+      <button class="ghost-btn" id="exit-btn" type="button">Exit</button>
+    </div>
+  </div>
+
+  <main class="app">
+    <!-- 1. Opening -->
+    <section class="screen active" id="screen-warn" aria-label="Warning">
+      <div class="warning-panel">
+        <div class="warn-icon" aria-hidden="true">!</div>
+        <p class="eyebrow">Secure Channel · Intrusion Alert</p>
+        <h1 class="warn-title glitch" id="warn-title" data-text="WARNING: UNAUTHORIZED ACCESS DETECTED">
+          WARNING: UNAUTHORIZED ACCESS DETECTED
+        </h1>
+        <p class="warn-copy">
+          System integrity check failed. Unknown operator signature detected on this session.
+        </p>
+        <button class="continue-btn" id="continue-btn" type="button">Continue</button>
+        <p class="disclaimer">Entertainment prank · No device access · No data collected</p>
+      </div>
+    </section>
+
+    <!-- 2. Terminal -->
+    <section class="screen" id="screen-term" aria-label="Terminal sequence" hidden>
+      <div class="terminal">
+        <div class="term-chrome">
+          <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="term-title">root@ayoub — /secure/breach</div>
+          <div class="term-title" id="clock">00:00:00</div>
+        </div>
+        <div class="term-body">
+          <div class="code-rain" id="code-rain" aria-hidden="true"></div>
+          <div class="messages" id="messages" aria-live="polite"></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span>Breach protocol</span>
+            <strong id="pct">0%</strong>
+          </div>
+          <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressbar">
+            <span id="bar-fill"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Reveal -->
+    <section class="screen" id="screen-reveal" aria-label="Prank reveal" hidden>
+      <div class="reveal">
+        <h2 class="hacked" id="hacked-line">YOU HAVE BEEN HACKED</h2>
+        <p class="byline" id="byline">BY AYOUB 💀</p>
+        <p class="prank" id="prank-line">HAHAHA! 😂 DON'T PANIC, IT'S JUST A PRANK!</p>
+        <div class="actions" id="reveal-actions">
+          <button class="primary-btn" id="again-btn" type="button">Play again</button>
+          <button class="secondary-btn" id="exit-btn-2" type="button">Exit</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const screenWarn = document.getElementById("screen-warn");
+      const screenTerm = document.getElementById("screen-term");
+      const screenReveal = document.getElementById("screen-reveal");
+      const continueBtn = document.getElementById("continue-btn");
+      const muteBtn = document.getElementById("mute-btn");
+      const exitBtn = document.getElementById("exit-btn");
+      const exitBtn2 = document.getElementById("exit-btn-2");
+      const againBtn = document.getElementById("again-btn");
+      const messagesEl = document.getElementById("messages");
+      const codeRain = document.getElementById("code-rain");
+      const barFill = document.getElementById("bar-fill");
+      const pctEl = document.getElementById("pct");
+      const progressbar = document.getElementById("progressbar");
+      const flash = document.getElementById("flash");
+      const clock = document.getElementById("clock");
+      const warnTitle = document.getElementById("warn-title");
+      const hackedLine = document.getElementById("hacked-line");
+      const byline = document.getElementById("byline");
+      const prankLine = document.getElementById("prank-line");
+      const revealActions = document.getElementById("reveal-actions");
+
+      const lines = [
+        { text: "Initializing system...", warn: false, delay: 900 },
+        { text: "Connecting to server...", warn: false, delay: 1100 },
+        { text: "Scanning device...", warn: false, delay: 1200 },
+        { text: "Access granted...", warn: false, delay: 1000 },
+        { text: "Security breach detected...", warn: true, delay: 1300 },
+      ];
+
+      const hexBits = [
+        "0x4A1F", "SYN", "ACK", "0x90", "mmap", "ptrace", "socket", "TLS1.3",
+        "0xDEAD", "route", "icmp", "payload", "entropy", "0xC0DE", "handshake",
+        "nonce", "cipher", "0xBEEF", "scan", "probe", "auth", "token", "frame",
+      ];
+
+      let muted = false;
+      let audioCtx = null;
+      let masterGain = null;
+      let ambienceNodes = [];
+      let timers = [];
+      let rainTimer = null;
+      let clockTimer = null;
+      let glitchTimer = null;
+      let running = false;
+
+      function showScreen(target) {
+        [screenWarn, screenTerm, screenReveal].forEach((el) => {
+          el.classList.remove("active");
+          el.hidden = true;
+        });
+        target.hidden = false;
+        // force reflow so animation restarts
+        void target.offsetWidth;
+        target.classList.add("active");
+      }
+
+      function clearTimers() {
+        timers.forEach((id) => clearTimeout(id));
+        timers = [];
+        if (rainTimer) {
+          clearInterval(rainTimer);
+          rainTimer = null;
+        }
+        if (clockTimer) {
+          clearInterval(clockTimer);
+          clockTimer = null;
+        }
+      }
+
+      function later(fn, ms) {
+        const id = setTimeout(fn, reduceMotion ? Math.min(ms, 40) : ms);
+        timers.push(id);
+        return id;
+      }
+
+      function ensureAudio() {
+        if (audioCtx) return;
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        audioCtx = new Ctx();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = muted ? 0 : 0.22;
+        masterGain.connect(audioCtx.destination);
+      }
+
+      function setMuted(next) {
+        muted = next;
+        muteBtn.setAttribute("aria-pressed", muted ? "true" : "false");
+        muteBtn.textContent = muted ? "Unmute" : "Mute";
+        if (masterGain) {
+          masterGain.gain.setTargetAtTime(muted ? 0 : 0.22, audioCtx.currentTime, 0.03);
+        }
+      }
+
+      function tone({ freq = 220, type = "sine", dur = 0.2, gain = 0.08, slideTo = null }) {
+        if (!audioCtx || muted) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (slideTo != null) osc.frequency.exponentialRampToValueAtTime(Math.max(20, slideTo), now + dur);
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(gain, now + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        osc.connect(g);
+        g.connect(masterGain);
+        osc.start(now);
+        osc.stop(now + dur + 0.02);
+      }
+
+      function startAmbience() {
+        stopAmbience();
+        if (!audioCtx || muted) return;
+        const now = audioCtx.currentTime;
+
+        const osc = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+        const g = audioCtx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.value = 42;
+        filter.type = "lowpass";
+        filter.frequency.value = 180;
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.linearRampToValueAtTime(0.035, now + 1.2);
+        osc.connect(filter);
+        filter.connect(g);
+        g.connect(masterGain);
+        osc.start(now);
+        ambienceNodes.push({ osc, g });
+
+        const lfo = audioCtx.createOscillator();
+        const lfoGain = audioCtx.createGain();
+        lfo.frequency.value = 0.08;
+        lfoGain.gain.value = 40;
+        lfo.connect(lfoGain);
+        lfoGain.connect(filter.frequency);
+        lfo.start(now);
+        ambienceNodes.push({ osc: lfo, g: lfoGain });
+      }
+
+      function stopAmbience() {
+        ambienceNodes.forEach(({ osc, g }) => {
+          try {
+            if (g && audioCtx) {
+              g.gain.cancelScheduledValues(audioCtx.currentTime);
+              g.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.05);
+            }
+            if (osc) osc.stop(audioCtx ? audioCtx.currentTime + 0.2 : 0);
+          } catch (_) { /* already stopped */ }
+        });
+        ambienceNodes = [];
+      }
+
+      function beepTick() {
+        tone({ freq: 520, type: "square", dur: 0.05, gain: 0.03 });
+      }
+
+      function warnHit() {
+        tone({ freq: 160, type: "triangle", dur: 0.35, gain: 0.1, slideTo: 70 });
+        pulseFlash();
+      }
+
+      function successChord() {
+        tone({ freq: 196, type: "sine", dur: 0.5, gain: 0.07 });
+        later(() => tone({ freq: 247, type: "sine", dur: 0.55, gain: 0.06 }), 80);
+        later(() => tone({ freq: 294, type: "sine", dur: 0.7, gain: 0.05 }), 160);
+      }
+
+      function pulseFlash() {
+        flash.classList.remove("on");
+        void flash.offsetWidth;
+        flash.classList.add("on");
+      }
+
+      function randomHexLine() {
+        let s = "";
+        const count = 10 + Math.floor(Math.random() * 8);
+        for (let i = 0; i < count; i++) {
+          s += hexBits[Math.floor(Math.random() * hexBits.length)] + " ";
+        }
+        return s.trim();
+      }
+
+      function seedRain() {
+        const rows = [];
+        for (let i = 0; i < 28; i++) rows.push(randomHexLine());
+        codeRain.textContent = rows.join("\n");
+      }
+
+      function startRain() {
+        seedRain();
+        if (reduceMotion) return;
+        rainTimer = setInterval(() => {
+          const rows = codeRain.textContent.split("\n");
+          rows.shift();
+          rows.push(randomHexLine());
+          codeRain.textContent = rows.join("\n");
+        }, 180);
+      }
+
+      function startClock() {
+        const start = Date.now();
+        const tick = () => {
+          const t = Math.floor((Date.now() - start) / 1000);
+          const h = String(Math.floor(t / 3600)).padStart(2, "0");
+          const m = String(Math.floor((t % 3600) / 60)).padStart(2, "0");
+          const s = String(t % 60).padStart(2, "0");
+          clock.textContent = `${h}:${m}:${s}`;
+        };
+        tick();
+        clockTimer = setInterval(tick, 1000);
+      }
+
+      function setProgress(p) {
+        const v = Math.max(0, Math.min(100, Math.round(p)));
+        barFill.style.width = `${v}%`;
+        pctEl.textContent = `${v}%`;
+        progressbar.setAttribute("aria-valuenow", String(v));
+      }
+
+      function startGlitchLoop() {
+        if (reduceMotion || glitchTimer) return;
+        glitchTimer = setInterval(() => {
+          if (!screenWarn.classList.contains("active")) return;
+          warnTitle.classList.add("glitching");
+          later(() => warnTitle.classList.remove("glitching"), 140);
+        }, 2800);
+      }
+
+      function appendMessage(item, index, total) {
+        const row = document.createElement("div");
+        row.className = "msg" + (item.warn ? " warn-line" : "");
+        row.innerHTML = `<span>&gt; ${item.text}</span><span class="cursor" aria-hidden="true"></span>`;
+        messagesEl.appendChild(row);
+        void row.offsetWidth;
+        row.classList.add("show");
+
+        // remove previous cursors
+        messagesEl.querySelectorAll(".cursor").forEach((c, i, arr) => {
+          if (i < arr.length - 1) c.remove();
+        });
+
+        if (item.warn) warnHit();
+        else beepTick();
+
+        const progress = ((index + 1) / total) * 92;
+        setProgress(progress);
+      }
+
+      function runSequence() {
+        running = true;
+        messagesEl.innerHTML = "";
+        setProgress(0);
+        showScreen(screenTerm);
+        startRain();
+        startClock();
+        startAmbience();
+        tone({ freq: 90, type: "sine", dur: 0.6, gain: 0.08, slideTo: 140 });
+
+        let acc = 400;
+        lines.forEach((item, index) => {
+          later(() => {
+            if (!running) return;
+            appendMessage(item, index, lines.length);
+            if (index === lines.length - 1) {
+              later(() => finishSequence(), reduceMotion ? 200 : 900);
+            }
+          }, acc);
+          acc += item.delay;
+        });
+
+        // smooth progress creep between message jumps
+        let p = 0;
+        const creep = setInterval(() => {
+          if (!running) {
+            clearInterval(creep);
+            return;
+          }
+          p = Math.min(88, p + 0.6);
+          const current = Number(progressbar.getAttribute("aria-valuenow") || 0);
+          if (p > current && current < 92) setProgress(Math.max(current, p));
+        }, 120);
+        timers.push(creep);
+      }
+
+      function finishSequence() {
+        setProgress(100);
+        successChord();
+        pulseFlash();
+        later(() => {
+          stopAmbience();
+          clearTimers();
+          running = false;
+          showReveal();
+        }, reduceMotion ? 120 : 700);
+      }
+
+      function showReveal() {
+        hackedLine.classList.remove("show");
+        byline.classList.remove("show");
+        prankLine.classList.remove("show");
+        revealActions.classList.remove("show");
+        showScreen(screenReveal);
+
+        later(() => {
+          hackedLine.classList.add("show");
+          tone({ freq: 110, type: "triangle", dur: 0.45, gain: 0.09, slideTo: 55 });
+          pulseFlash();
+        }, 80);
+
+        later(() => byline.classList.add("show"), reduceMotion ? 100 : 700);
+        later(() => {
+          prankLine.classList.add("show");
+          tone({ freq: 330, type: "sine", dur: 0.25, gain: 0.05 });
+        }, reduceMotion ? 160 : 1500);
+        later(() => revealActions.classList.add("show"), reduceMotion ? 200 : 2100);
+      }
+
+      function exitExperience() {
+        running = false;
+        clearTimers();
+        stopAmbience();
+        if (glitchTimer) {
+          clearInterval(glitchTimer);
+          glitchTimer = null;
+        }
+        document.body.innerHTML = `
+          <div style="min-height:100dvh;display:grid;place-items:center;background:#020303;color:#6d7571;font-family:IBM Plex Mono,Consolas,monospace;padding:24px;text-align:center;">
+            <div>
+              <p style="letter-spacing:0.2em;text-transform:uppercase;font-size:0.75rem;margin:0 0 10px;">Session closed</p>
+              <p style="color:#a4aaa7;margin:0 0 18px;">Thanks for playing. Close this tab anytime.</p>
+              <button id="reopen" type="button" style="appearance:none;border:1px solid #202624;background:#101413;color:#a4aaa7;padding:0.8rem 1.1rem;border-radius:4px;font:600 0.78rem IBM Plex Mono,Consolas,monospace;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;">Reopen prank</button>
+            </div>
+          </div>`;
+        const reopen = document.getElementById("reopen");
+        if (reopen) {
+          reopen.addEventListener("click", () => location.reload());
+        }
+      }
+
+      function resetToStart() {
+        running = false;
+        clearTimers();
+        stopAmbience();
+        messagesEl.innerHTML = "";
+        setProgress(0);
+        codeRain.textContent = "";
+        hackedLine.classList.remove("show");
+        byline.classList.remove("show");
+        prankLine.classList.remove("show");
+        revealActions.classList.remove("show");
+        showScreen(screenWarn);
+        startGlitchLoop();
+      }
+
+      continueBtn.addEventListener("click", () => {
+        ensureAudio();
+        if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+        runSequence();
+      });
+
+      muteBtn.addEventListener("click", () => {
+        ensureAudio();
+        setMuted(!muted);
+      });
+
+      exitBtn.addEventListener("click", exitExperience);
+      exitBtn2.addEventListener("click", exitExperience);
+      againBtn.addEventListener("click", () => {
+        resetToStart();
+      });
+
+      startGlitchLoop();
+    })();
+  </script>
+</body>
+</html>
